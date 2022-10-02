@@ -1,0 +1,123 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pgset-pv
+  labels:
+    app: pgset
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 150M
+  accessModes: 
+    - ReadWriteMany
+  nfs:
+    path: /kubernetes-volumes
+    server: 127.0.0.1
+  persistentVolumeReclaimPolicy: Retain
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pgset-pvc
+spec:
+  accessModes: 
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100M
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pgset-sa
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgset
+  labels:
+    app: pgset
+spec:
+  ports:
+    - port: 8989
+      name: web
+      protocol: TCP
+      targetPort: 5432
+      nodePort: 32123
+  type: LoadBalancer
+  selector:
+    app: pgset
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgset-primary
+  labels:
+    name: pgset-primary
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 0
+  selector:
+    name: pgset-primary
+  type: ClusterIP
+  #type: NodePort
+  sessionAffinity: None
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgset-replica
+  labels:
+    name: pgset-replica
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+      nodePort: 0
+  selector:
+    name: pgset-replica
+  type: ClusterIP
+  sessionAffinity: None
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pgset
+spec:
+  selector:
+    matchLabels:
+      app: pgset # has to match .spec.template.metadata.labels
+  serviceName: pgset
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: pgset
+        name: pgset-replica
+    spec:
+      serviceAccount: pgset-sa
+      securityContext:
+        fsGroup: 26
+      containers:
+        - name: pgset
+          image: postgres
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: secret
+          volumeMounts:
+            - name: pgdata
+              mountPath: /pgdata
+              readOnly: false
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: pgset-pvc

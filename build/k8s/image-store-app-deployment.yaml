@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-store-deployment
+  labels:
+    app: image-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-store
+  template:
+    metadata:
+      labels:
+        app: image-store
+    spec:
+      containers:
+      - name: image-store-service
+        image: localhost:5000/image-store:latest
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-store-external-service
+spec:
+  selector:
+    app: image-store
+  type: LoadBalancer
+  externalName: image.store.com
+  ports:
+  - port: 8123
+    protocol: TCP
+    targetPort: 8080
+    nodePort: 31234
