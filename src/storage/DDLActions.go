@@ -10,10 +10,11 @@ import (
 func CreateAllTables(db *sql.DB) {
 	// create table if not exists
 	User_table := `
-	CREATE TABLE IF NOT EXISTS User(
-		UserID INTEGER NOT NULL UNIQUE PRIMARY KEY,
-		UserName TEXT NOT NULL UNIQUE,
-		Password TEXT NOT NULL
+	CREATE TABLE User(
+		UserID BIGINT NOT NULL,
+		UserName VARCHAR(255) NOT NULL,
+		Password VARCHAR(255),
+		PRIMARY KEY (UserID)
 	);
 	`
 	_, err := db.Exec(User_table)
@@ -23,14 +24,16 @@ func CreateAllTables(db *sql.DB) {
 	}
 
 	Album_table := `
-	CREATE TABLE IF NOT EXISTS Album(
-		CreatedAt BIGINT NONT NULL,
-		AlbumID BIGINT NOT NULL UNIQUE PRIMARY KEY,
-		AlbumName TEXT NOT NULL,
+	CREATE TABLE Album(
+		CreatedAt BIGINT NOT NULL,
+		AlbumID BIGINT NOT NULL,
+		AlbumName VARCHAR(255) NOT NULL,
+		UserID BIGINT,
+		  PRIMARY key (AlbumID),
 		FOREIGN KEY (UserID) 
-			REFERENCES USER(VolumeID) 
+			REFERENCES User(UserID) 
 			ON DELETE CASCADE
-	);
+	);	
 	`
 	_, err2 := db.Exec(Album_table)
 	if err2 != nil {
@@ -39,13 +42,15 @@ func CreateAllTables(db *sql.DB) {
 	}
 
 	Image_table := `
-	CREATE TABLE IF NOT EXISTS Image(
-		ImageID BIGINT NOT NULL UNIQUE PRIMARY KEY,
+	CREATE TABLE Image(
+		ImageID BIGINT NOT NULL,
 		ImageName TEXT NOT NULL,
-		FOREIGN KEY (UserID) 
-			REFERENCES USER(VolumeID) 
+		  AlbumID BIGINT,
+		  PRIMARY KEY (ImageID),
+		FOREIGN KEY (AlbumID) 
+			REFERENCES Album(AlbumID) 
 			ON DELETE CASCADE
-	);
+	);	
 	`
 	_, err1 := db.Exec(Image_table)
 	if err1 != nil {
@@ -53,3 +58,6 @@ func CreateAllTables(db *sql.DB) {
 		panic(err1)
 	}
 }
+
+
+
