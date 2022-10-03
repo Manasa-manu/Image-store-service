@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Album List</title>
+    <style>
+table, th, td {
+  border: 1px solid black;
+}
+table {
+  border-spacing: 30px;
+}
+</style>
+  </head>
+  <body>
+    <p>
+      Album list of user {{ .UserName }}
+    </p>
+    <table>
+      	<tr>
+      	 <td>
+      	 	<button type="button" onclick="window.location='{{ .UserID }}/album/add'" >Create New Album </button>
+      	 </td>
+    	</tr>
+    </table>
+    <table>
+          	{{ with .List}}
+ 			{{ range . }}
+      			<tr>
+      				<td> <b>AlbumName :</b>{{ .AlbumName }} </td>
+              		<td>
+              		<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}'" >Go to Album </button>
+              		</td>
+              		<td> 
+              			<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}/image/add'" >Add an Image to the <b>{{.AlbumName}}</b> </button>
+              		</td>
+
+      			</tr>
+			{{ end }} 
+			{{ end }}
+    </table>
+  </body>
+</html>

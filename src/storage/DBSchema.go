@@ -25,8 +25,21 @@ type Album struct {
 	UserID      int
 }
 
+type AlbumDetails struct{
+	UserName string
+	UserID int
+	AlbumList[] Album
+}
 type Datastore interface {
+
+	// User table actions
 	AddUser(userName string, password string) error
+	CheckIfUserExists(userName string,password string) (bool,error)
+	GetUserID(userName string,password string) (int,error)
+	GetUserName(userId int)(string,error)
+
+	// Album table actions
+	GetAlbums(userId int)([]Album,error)
 }
 
 type DB struct {

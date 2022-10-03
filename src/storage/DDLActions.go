@@ -10,8 +10,8 @@ import (
 func CreateAllTables(db *sql.DB) {
 	// create table if not exists
 	User_table := `
-	CREATE TABLE User(
-		UserID BIGINT NOT NULL,
+	CREATE TABLE if not exists User(
+		UserID BIGINT NOT NULL AUTO_INCREMENT,
 		UserName VARCHAR(255) NOT NULL,
 		Password VARCHAR(255),
 		PRIMARY KEY (UserID)
@@ -24,9 +24,9 @@ func CreateAllTables(db *sql.DB) {
 	}
 
 	Album_table := `
-	CREATE TABLE Album(
+	CREATE TABLE if not exists Album(
 		CreatedAt BIGINT NOT NULL,
-		AlbumID BIGINT NOT NULL,
+		AlbumID BIGINT NOT NULL AUTO_INCREMENT,
 		AlbumName VARCHAR(255) NOT NULL,
 		UserID BIGINT,
 		  PRIMARY key (AlbumID),
@@ -42,8 +42,8 @@ func CreateAllTables(db *sql.DB) {
 	}
 
 	Image_table := `
-	CREATE TABLE Image(
-		ImageID BIGINT NOT NULL,
+	CREATE TABLE if not exists Image(
+		ImageID BIGINT NOT NULL AUTO_INCREMENT,
 		ImageName TEXT NOT NULL,
 		  AlbumID BIGINT,
 		  PRIMARY KEY (ImageID),

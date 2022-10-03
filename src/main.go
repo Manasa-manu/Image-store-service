@@ -36,6 +36,7 @@ func main() {
 	/*****End**********/
 	// env := &BeanAccess{db}
 	r := gin.Default()
+	r.LoadHTMLGlob("../static/*")
 
 	r.GET("/", func(c *gin.Context) {
 		c.File("index.html")
@@ -56,9 +57,9 @@ func main() {
 	})
 	r.POST("/user/login",LoginHandler)
 
-	r.GET("/user/:id",func(c *gin.Context){
-		c.String(http.StatusOK,"Hello, user!")
-	})
+	r.GET("/user/:id",UserAlbumsHandler)
 	
+	r.GET("/user/:id/album/add",AddAlbumHandler)
+	// r.POST("/user/:id/album/add",)
 	log.Fatal(r.Run(listen))
 }
