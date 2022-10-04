@@ -57,7 +57,7 @@ type DB struct {
 // connStr := "mysql:secret@/image_store"
 // Connect to database
 // const connStr = "mysql:secret@tcp(mysql:3306)/image_store"
-const connStr = "test:password@tcp(localhost:3306)/image_store"
+const connStr = "test:password@tcp(mysql:3306)/image_store"
 
 func NewDB() (*DB, error) {
 	db, err := sql.Open("mysql", connStr)
