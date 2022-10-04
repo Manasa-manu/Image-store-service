@@ -6,12 +6,12 @@
 	<title>New Album</title>
 </head>
 <body>
-	<form method="POST" action="/user/{{ .UserID }}/album/add">
+	<form method="POST" action="/user/{{ .UserID }}/album/add" enctype="multipart/form-data">
     <label for="name">Album name</label>
     <input type="text" id="name" name="name">
     <br>
     <label for="filename">Choose File </label>
-    <input type="file" id="myFile" name="filename">
+    <input type="file" id="myFile" name="filename[]" accept="image/*" multiple>
     <button type="submit">Create</button>
 </form>   
 </body>

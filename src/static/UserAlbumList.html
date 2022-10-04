@@ -31,9 +31,16 @@ table {
               		<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}'" >Go to Album </button>
               		</td>
               		<td> 
-              			<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}/image/add'" >Add an Image to the <b>{{.AlbumName}}</b> </button>
+              			<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}/image/add'" >Add an Image to the <b>{{.AlbumName}} </b> Album </button>
               		</td>
-
+					  <td> 
+						<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID }}/download'" >Download Album <b>{{.AlbumName}}</b> </button>
+					</td>
+					<td> 
+                        <form action="{{.UserID}}/album/{{.AlbumID}}/delete/" method="POST">
+                            <input type="submit" value="Delete {{.AlbumName}} "> </input>
+                        </form>
+              		</td>
       			</tr>
 			{{ end }} 
 			{{ end }}

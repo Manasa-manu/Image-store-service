@@ -25,11 +25,6 @@ type Album struct {
 	UserID      int
 }
 
-type AlbumDetails struct{
-	UserName string
-	UserID int
-	AlbumList[] Album
-}
 type Datastore interface {
 
 	// User table actions
@@ -39,7 +34,18 @@ type Datastore interface {
 	GetUserName(userId int)(string,error)
 
 	// Album table actions
+	GetAlbumName(albumId int)(string,error)
 	GetAlbums(userId int)([]Album,error)
+	GetAlbumID(userId int,albumName string)(int,error)
+	AddAlbum(userId int, albumName string) error
+	DeleteAlbum(albumId int)(int,error)
+
+	// Image table actions
+	GetImageName(imageId int)(string,error)
+	GetImages(albumId int) ([]Image,error)
+	GetImageID(albumId int, imageName string) (int,error)
+	AddImage(albumId int, imageName string) error
+	DeleteImage(imageId int)(int,error)
 }
 
 type DB struct {

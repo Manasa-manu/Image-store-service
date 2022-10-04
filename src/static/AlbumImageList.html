@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image List</title>
+    <style>
+table, th, td {
+  border: 1px solid black;
+}
+table {
+  border-spacing: 30px;
+}
+</style>
+  </head>
+  <body>
+    <p>
+      Image list of album {{ .AlbumName }}
+    </p>
+    <table>
+      	<tr>
+      	 <td>
+      	 	<button type="button" onclick="window.location='{{ .UserID }}/album/{{ .AlbumID}}/image/add'" >Add New Image </button>
+      	 </td>
+    	</tr>
+    </table>
+    <table>
+          	{{ with .List}}
+ 			{{ range . }}
+      			<tr>
+      				<td> <b>ImageName :</b>{{ .ImageName }} </td>
+              		<td>
+              		<button type="button" onclick="window.location='/image/{{.ImageID}}/download'" >Download <b>{{.ImageName}}</b> </button>
+              		</td>
+              		<td> 
+                        <form action="/image/{{.ImageID}}/delete/" method="DELETE">
+                            <input type="submit" value="Delete {{.ImageName}} "> </input>
+                        </form>
+              		</td>
+      			</tr>
+			{{ end }} 
+			{{ end }}
+    </table>
+  </body>
+</html>
