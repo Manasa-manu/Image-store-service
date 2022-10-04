@@ -31,7 +31,7 @@ table {
               		<button type="button" onclick="window.location='/image/{{.ImageID}}/download'" >Download <b>{{.ImageName}}</b> </button>
               		</td>
               		<td> 
-                        <form action="/image/{{.ImageID}}/delete/" method="DELETE">
+                        <form action="/image/{{.ImageID}}/delete/" method="POST">
                             <input type="submit" value="Delete {{.ImageName}} "> </input>
                         </form>
               		</td>
