@@ -38,13 +38,13 @@ func initDB() {
 	storage.CreateAllTables(db)
 }
 func initMinio(){
-        endpoint := "play.min.io"
-        accessKeyID := "Q3AM3UQ867SPQQA43P2F"
-        secretAccessKey := "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+        endpoint, endpointOk := os.LookupEnv("MINIO_ENDPOINT");
+	accessKeyId, accessKeyIdOk := os.LookupEnv("MINIO_ACCESS_KEY_ID");
+	secretAccessKey, secretAccessKeyOk := os.LookupEnv("MINIO_SECRET_ACCESS_KEY");
         useSSL := true
 
         // Initialize minio client object.
-		var err error
+	var err error
         MinioClientInstance, err = minio.New(endpoint, &minio.Options{
                 Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
                 Secure: useSSL,

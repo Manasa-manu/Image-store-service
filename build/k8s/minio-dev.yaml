@@ -1,33 +1,73 @@
 apiVersion: v1
-kind: Pod
+kind: PersistentVolumeClaim
 metadata:
+  # This name uniquely identifies the PVC. Will be used in deployment below.
+  name: minio-pv-claim
   labels:
-    app: minio
+    app: minio-storage-claim
+spec:
+  # Read more about access modes here: http://kubernetes.io/docs/user-guide/persistent-volumes/#access-modes
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    # This is the request for storage. Should be available in the cluster.
+    requests:
+      storage: 250Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: minio
 spec:
-  containers:
-  - name: minio
-    image: quay.io/minio/minio:latest
-    command:
-    - /bin/bash
-    - -c
-    args: 
-    - minio server /data --console-address :9090
-    env:
+  type: LoadBalancer
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+  selector:
+    app: minio
+---
+apiVersion: apps/v1 #  for k8s versions before 1.9.0 use apps/v1beta2  and before 1.8.0 use extensions/v1beta1
+kind: Deployment
+metadata:
+  # This name uniquely identifies the Deployment
+  name: minio
+spec:
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        # Label is used as selector in the service.
+        app: minio
+    spec:
+      # Refer to the PVC created earlier
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          # Name of the PVC created earlier
+          claimName: minio-pv-claim
+      containers:
+      - name: minio
+        # Pulls the default Minio image from Docker Hub
+        image: minio/minio:latest
+        args:
+        - server
+        - /storage
+        env:
         # Minio access key and secret key
-        - name: MINIO_ROOT_USER
-          value: "minio"
-        - name: MINIO_ROOT_PASSWORD
-          value: "minio-service-password"
         - name: MINIO_ACCESS_KEY
           value: "minio"
         - name: MINIO_SECRET_KEY
           value: "minio-service-password"
-    volumeMounts:
-    - mountPath: /data
-      name: localvolume # Corresponds to the `spec.volumes` Persistent Volume
-  volumes:
-  - name: localvolume
-    hostPath: # MinIO generally recommends using locally-attached volumes
-      path: /mnt/disk1/data # Specify a path to a local drive or volume on the Kubernetes worker node
-      type: DirectoryOrCreate # The path to the last directory must exist
+        ports:
+        - containerPort: 9000
+          hostPort: 9000
+        # Mount the volume into the pod
+        volumeMounts:
+        - name: storage # must match the volume name, above
+          mountPath: "/storage"
