@@ -25,10 +25,10 @@ func (db *DB) AddUser(userName string, password string) error {
 	return nil
 }
 
-func (db *DB) CheckIfUserExists(userName string, password string) (bool,error) {
+func (db *DB) CheckIfUserExists(userName string) (bool,error) {
 	var count int
 
-	row := db.QueryRow("SELECT COUNT(*) FROM User WHERE UserName = ? AND Password = ?", userName,password)
+	row := db.QueryRow("SELECT COUNT(*) FROM User WHERE UserName = ?", userName)
 	err := row.Scan(&count)
 	if err != nil {
 		log.Fatal(err)
@@ -42,14 +42,14 @@ func (db *DB) CheckIfUserExists(userName string, password string) (bool,error) {
 	}
 }
 
-func (db *DB) GetUserID(userName string,password string) (int, error) {
-	stmt, err := db.Prepare("SELECT UserID FROM User WHERE UserName = ? AND Password = ? ")
+func (db *DB) GetUserID(userName string) (int, error) {
+	stmt, err := db.Prepare("SELECT UserID FROM User WHERE UserName = ?")
 	if err != nil {
 		log.Fatal(err)
 		return -1, err
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(userName,password);
+	rows, err := stmt.Query(userName);
 	if err != nil {
 		log.Fatal(err)
 		return -1, err
@@ -71,13 +71,41 @@ func (db *DB) GetUserID(userName string,password string) (int, error) {
 }
 
 func (db *DB) GetUserName(userId int) (string, error) {
-	stmt, err := db.Prepare("SELECT UserName FROM User WHERE UserID = ? ")
+	stmt, err := db.Prepare("SELECT UserName FROM User WHERE UserName = ? ")
 	if err != nil {
 		log.Fatal(err)
 		return "", err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(userId);
+	if err != nil {
+		log.Fatal(err)
+		return "", err
+	}
+	defer rows.Close()
+	var result string
+	for rows.Next() {
+		err := rows.Scan(&result)
+		if err != nil {
+			log.Fatal(err)
+			return "", err
+		}
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+		return "", err
+	}
+	return result, nil
+}
+
+func (db *DB) GetPasswordHash(userName string) (string, error) {
+	stmt, err := db.Prepare("SELECT Password FROM User WHERE UserID = ? ")
+	if err != nil {
+		log.Fatal(err)
+		return "", err
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(userName);
 	if err != nil {
 		log.Fatal(err)
 		return "", err

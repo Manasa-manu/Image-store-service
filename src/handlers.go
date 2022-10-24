@@ -11,6 +11,7 @@ import (
 	"os"
 	"archive/zip"
 	"io"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const tempLocation ="/tmp/image/"
@@ -18,9 +19,17 @@ const tempLocation ="/tmp/image/"
 func LoginHandler(c *gin.Context){
 	name:= c.PostForm("name");
 	password:= c.PostForm("password");
-	exists,_ := Env.db.CheckIfUserExists(name,password);
+	exists,_ := Env.db.CheckIfUserExists(name);
 	if exists{
-		userid,_ := Env.db.GetUserID(name,password);
+		hashFromDatabase ,_:= Env.db.GetPasswordHash(name);
+		hashFromDBInByte := []byte(hashFromDatabase);
+		// compare user entered password and password hash from DB
+		if err := bcrypt.CompareHashAndPassword(hashFromDBInByte, []byte(password)); err != nil {
+			// wrong password so redirect to login page
+			c.Redirect(http.StatusFound,"/login")
+		}
+
+		userid,_ := Env.db.GetUserID(name);
 		c.Redirect(http.StatusFound,"/user/"+strconv.Itoa(userid))
 	}else{
 		c.Redirect(http.StatusFound,"/login")
@@ -30,10 +39,13 @@ func LoginHandler(c *gin.Context){
 func UserRegisterHandler(c *gin.Context){
 	name:= c.PostForm("name")
 	password:= c.PostForm("password")
+	
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	log.Print("Register:"+name+" pass"+password);
-
-	Env.db.AddUser(name,password)
+	Env.db.AddUser(name,string(hash))
 	c.Redirect(http.StatusFound,"/register/success")
 }
 

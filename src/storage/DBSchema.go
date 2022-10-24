@@ -29,9 +29,10 @@ type Datastore interface {
 
 	// User table actions
 	AddUser(userName string, password string) error
-	CheckIfUserExists(userName string,password string) (bool,error)
-	GetUserID(userName string,password string) (int,error)
+	CheckIfUserExists(userName string) (bool,error)
+	GetUserID(userName string) (int,error)
 	GetUserName(userId int)(string,error)
+	GetPasswordHash(userName string)(string,error)
 
 	// Album table actions
 	GetAlbumName(albumId int)(string,error)

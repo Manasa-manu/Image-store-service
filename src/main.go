@@ -2,7 +2,7 @@ package main
 
 import (
 	"image-store-service/storage"
-
+	"os"
 	"log"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,20 +38,26 @@ func initDB() {
 	storage.CreateAllTables(db)
 }
 func initMinio(){
-        endpoint, endpointOk := os.LookupEnv("MINIO_ENDPOINT");
+    endpoint, endpointOk := os.LookupEnv("MINIO_ENDPOINT");
 	accessKeyId, accessKeyIdOk := os.LookupEnv("MINIO_ACCESS_KEY_ID");
 	secretAccessKey, secretAccessKeyOk := os.LookupEnv("MINIO_SECRET_ACCESS_KEY");
-        useSSL := true
+    useSSL := false
 
-        // Initialize minio client object.
 	var err error
-        MinioClientInstance, err = minio.New(endpoint, &minio.Options{
-                Creds:  credentials.NewStaticV4(accessKeyID, secretAccessKey, ""),
-                Secure: useSSL,
-        })
-        if err != nil {
-                log.Fatalln(err)
-        }
+	if(endpointOk && accessKeyIdOk && secretAccessKeyOk) {
+
+		// Initialize minio client object.
+		MinioClientInstance, err = minio.New(endpoint, &minio.Options{
+			Creds:  credentials.NewStaticV4(accessKeyId, secretAccessKey, ""),
+			Secure: useSSL,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+	} else {
+		log.Fatal("Missing minio connection info, check environment variables")
+	}
+
 }
 
 func main() {
